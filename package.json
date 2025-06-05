@@ -1,0 +1,41 @@
+{
+  "name": "@yankeguo/mcp-coding-mr",
+  "version": "0.1.0",
+  "description": "A simple MCP server for CODING MR API",
+  "main": "dist/index.js",
+  "bin": {
+    "mcp-coding-mr": "dist/cli.js"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "scripts": {
+    "build": "tsc",
+    "format": "prettier --write \"src/**/*.ts\""
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/yankeguo/mcp-coding-mr.git"
+  },
+  "keywords": [
+    "mcp",
+    "coding",
+    "api"
+  ],
+  "author": "GUO YANKE <hi@yankeguo.com>",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/yankeguo/mcp-coding-mr/issues"
+  },
+  "homepage": "https://github.com/yankeguo/mcp-coding-mr#readme",
+  "devDependencies": {
+    "@types/node": "^22.15.29",
+    "prettier": "^3.5.3",
+    "typescript": "^5.8.3"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.12.1",
+    "axios": "^1.9.0",
+    "zod": "^3.25.51"
+  }
+}
