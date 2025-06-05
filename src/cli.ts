@@ -11,7 +11,7 @@ import {
 
 const server = new McpServer({
   name: "CODING MR",
-  version: "0.1.0",
+  version: "0.1.1",
   description: "A simple MCP server for CODING MR (Merge Request) API",
 });
 

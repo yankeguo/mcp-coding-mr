@@ -1,6 +1,6 @@
 {
   "name": "@yankeguo/mcp-coding-mr",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "A simple MCP server for CODING MR API",
   "main": "dist/index.js",
   "bin": {
