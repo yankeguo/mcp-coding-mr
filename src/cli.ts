@@ -1,10 +1,11 @@
-import {
-  McpServer,
-  ResourceTemplate,
-} from "@modelcontextprotocol/sdk/server/mcp.js";
+import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js";
 import { z } from "zod";
-import axios from "axios";
+import {
+  codingDecodeMergeRequestUrl,
+  codingDescribeMR,
+  codingDescribeMRFileDiffs,
+} from ".";
 
 const server = new McpServer({
   name: "CODING MR",
@@ -12,91 +13,30 @@ const server = new McpServer({
   description: "A simple MCP server for CODING MR (Merge Request) API",
 });
 
-async function codingInvoke(action: string, body: any) {
-  const { data } = await axios.post("https://e.coding.net/open-api/", body, {
-    params: { action },
-    auth: {
-      username: process.env.CODING_USERNAME || "",
-      password: process.env.CODING_PASSWORD || "",
-    },
-  });
-  return data;
-}
+server.tool(
+  "coding_mr_describe",
+  "Describe a CODING MR (Merge Request)",
+  {
+    url: z.string().describe("The URL of the CODING MR (Merge Request)"),
+  },
+  async ({ url }) => {
+    const mrRef = codingDecodeMergeRequestUrl(url);
 
-async function codingDescribeMRFileDiffs(
-  project_name: string,
-  repo_name: string,
-  mr_id: string,
-) {
-  const { Response: res } = z
-    .object({
-      Response: z.object({
-        MergeRequestFileDiff: z.object({
-          FileDiffs: z.array(
-            z.object({
-              ChangeType: z.string(),
-              Path: z.string(),
-            }),
-          ),
-        }),
-      }),
-    })
-    .parse(
-      await codingInvoke("DescribeMergeRequestFileDiff", {
-        DepotPath: `${project_name}/${repo_name}`,
-        MergeId: mr_id,
-      }),
-    );
-  return res.MergeRequestFileDiff;
-}
+    if (!mrRef) {
+      return {
+        isError: true,
+        content: [{ type: "text", text: "Invalid URL" }],
+      };
+    }
 
-async function codingDescribeMR(
-  project_name: string,
-  repo_name: string,
-  mr_id: string,
-) {
-  const { Response: res } = z
-    .object({
-      Response: z.object({
-        MergeReqInfo: z.object({
-          Title: z.string(),
-          SourceBranch: z.string(),
-          TargetBranch: z.string(),
-          Describe: z.string(),
-          Status: z.string(),
-        }),
-      }),
-    })
-    .parse(
-      await codingInvoke("DescribeMergeReqInfo", {
-        DepotPath: `${project_name}/${repo_name}`,
-        MergeId: mr_id,
-      }),
-    );
-  return res.MergeReqInfo;
-}
+    try {
+      const mr = await codingDescribeMR(mrRef);
+      const fileDiffs = await codingDescribeMRFileDiffs(mrRef);
 
-server.resource(
-  "coding_mr",
-  new ResourceTemplate("coding_mr://{project_name}/{repo_name}/{mr_id}", {
-    list: undefined,
-  }),
-  async (uri, { project_name, repo_name, mr_id }) => {
-    const mr = await codingDescribeMR(
-      project_name as string,
-      repo_name as string,
-      mr_id as string,
-    );
-    const fileDiffs = await codingDescribeMRFileDiffs(
-      project_name as string,
-      repo_name as string,
-      mr_id as string,
-    );
+      const description = `# Merge Request: ${mr.Title}
 
-    const description = `# Merge Request: ${mr.Title}
-
-**Project:** ${project_name}/${repo_name}
-**MR ID:** ${mr_id}
+**Project:** ${mrRef.proj}/${mrRef.repo}
+**MR ID:** ${mrRef.id}
 **Status:** ${mr.Status}
 **Source Branch:** ${mr.SourceBranch}
 **Target Branch:** ${mr.TargetBranch}
@@ -109,14 +49,15 @@ ${fileDiffs.FileDiffs.map((diff) => `- ${diff.ChangeType}: ${diff.Path}`).join("
 
 **Total files changed:** ${fileDiffs.FileDiffs.length}`;
 
-    return {
-      contents: [
-        {
-          uri: uri.href,
-          text: description,
-        },
-      ],
-    };
+      return {
+        content: [{ type: "text", text: description }],
+      };
+    } catch (e: any) {
+      return {
+        isError: true,
+        content: [{ type: "text", text: `Error: ${e.message}` }],
+      };
+    }
   },
 );
 
