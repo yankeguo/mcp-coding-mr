@@ -28,7 +28,7 @@ npx @yankeguo/mcp-coding-mr
       "name": "coding-mr",
       "type": "stdio",
       "command": "npx",
-      "args": ["@yankeguo/mcp-coding-mr@latest"],
+      "args": ["-y", "@yankeguo/mcp-coding-mr@latest"],
       "env": {
         "CODING_USERNAME": "your_username",
         "CODING_PASSWORD": "your_password"
