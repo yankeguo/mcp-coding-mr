@@ -11,7 +11,7 @@
   },
   "scripts": {
     "build": "tsc",
-    "format": "prettier --write \"src/**/*.ts\""
+    "format": "prettier --write ."
   },
   "repository": {
     "type": "git",

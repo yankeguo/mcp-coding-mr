@@ -1,23 +1,25 @@
 # mcp-coding-mr
 
-A simple MCP server for CODING MR API
+A Model Context Protocol (MCP) server that provides integration with CODING.net Merge Request API, enabling AI assistants to interact with and describe merge requests.
 
-## Usage
+## Installation
 
-### Manual Setup
+### Quick Start
 
-**Command**
-
-```shell
+```bash
 npx @yankeguo/mcp-coding-mr
 ```
 
-**Environment Variables**
+### Configuration
 
-- `CODING_USERNAME`
-- `CODING_PASSWORD`
+You'll need to provide your CODING.net credentials via environment variables:
 
-### JSON Config
+- `CODING_USERNAME` - Your CODING.net username
+- `CODING_PASSWORD` - Your CODING.net password
+
+### MCP Client Configuration
+
+Add the following configuration to your MCP client:
 
 ```json
 {
@@ -28,14 +30,34 @@ npx @yankeguo/mcp-coding-mr
       "command": "npx",
       "args": ["@yankeguo/mcp-coding-mr@latest"],
       "env": {
-        "CODING_USERNAME": "xxxxxx",
-        "CODING_PASSWORD": "xxxxxx"
+        "CODING_USERNAME": "your_username",
+        "CODING_PASSWORD": "your_password"
       }
     }
   }
 }
 ```
 
-## Credits
+## Available Tools
 
-GUO YANKE, MIT License
+### `coding_mr_describe`
+
+Fetches and describes a CODING.net Merge Request with comprehensive details.
+
+**Parameters:**
+
+- `url` (string, required): The URL of the Merge Request to describe
+
+**Example Usage:**
+
+```
+Describe the merge request at https://your-team.coding.net/p/project/d/repo/git/merge/123
+```
+
+## License
+
+MIT License
+
+## Author
+
+GUO YANKE
