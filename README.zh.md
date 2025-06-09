@@ -14,8 +14,8 @@ npx @yankeguo/mcp-coding-mr
 
 您需要通过环境变量提供您的 CODING.net 凭据：
 
-- `CODING_USERNAME` - 您的 CODING.net 用户名
-- `CODING_PASSWORD` - 您的 CODING.net 密码
+- `CODING_USERNAME` - 您的 CODING.net 令牌用户名
+- `CODING_PASSWORD` - 您的 CODING.net 令牌
 
 ### MCP 客户端配置
 

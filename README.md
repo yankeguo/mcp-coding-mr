@@ -14,8 +14,8 @@ npx @yankeguo/mcp-coding-mr
 
 You'll need to provide your CODING.net credentials via environment variables:
 
-- `CODING_USERNAME` - Your CODING.net username
-- `CODING_PASSWORD` - Your CODING.net password
+- `CODING_USERNAME` - Your CODING.net token username
+- `CODING_PASSWORD` - Your CODING.net token
 
 ### MCP Client Configuration
 
