@@ -1,13 +1,14 @@
 #!/usr/bin/env node
 
+import {
+  Configuration as CodingConfiguration,
+  DefaultApi as CodingAPI,
+} from "@yankeguo/coding-node-client";
+
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js";
 import { z } from "zod";
-import {
-  codingDecodeMergeRequestUrl,
-  codingDescribeMR,
-  codingDescribeMRFileDiffs,
-} from ".";
+import { decodeMergeRequestUrl } from ".";
 
 const server = new McpServer({
   name: "CODING MR",
@@ -22,7 +23,15 @@ server.tool(
     url: z.string().describe("The URL of the CODING MR (Merge Request)"),
   },
   async ({ url }) => {
-    const mrRef = codingDecodeMergeRequestUrl(url);
+    const coding = new CodingAPI(
+      new CodingConfiguration({
+        basePath: "https://e.coding.net/open-api",
+        username: process.env.CODING_USERNAME || "",
+        password: process.env.CODING_PASSWORD || "",
+      }),
+    );
+
+    const mrRef = decodeMergeRequestUrl(url);
 
     if (!mrRef) {
       return {
@@ -32,8 +41,19 @@ server.tool(
     }
 
     try {
-      const mr = await codingDescribeMR(mrRef);
-      const fileDiffs = await codingDescribeMRFileDiffs(mrRef);
+      const mrResp = await coding.describeMergeRequest({
+        DepotPath: `${mrRef.team}/${mrRef.proj}/${mrRef.repo}`,
+        MergeId: parseInt(mrRef.id),
+      });
+
+      const mr = mrResp.data.Response!.MergeRequestInfo!;
+
+      const diffsResp = await coding.describeMergeRequestFileDiff({
+        DepotPath: `${mrRef.team}/${mrRef.proj}/${mrRef.repo}`,
+        MergeId: parseInt(mrRef.id),
+      });
+
+      const diffs = diffsResp.data.Response!.MergeRequestFileDiff!.FileDiffs!;
 
       const description = `# Merge Request: ${mr.Title}
 
@@ -47,17 +67,30 @@ server.tool(
 ${mr.Describe}
 
 ## File Changes
-${fileDiffs.FileDiffs.map((diff) => `- ${diff.ChangeType}: ${diff.Path}`).join("\n")}
+${diffs.map((diff) => `- ${diff.ChangeType}: ${diff.Path}`).join("\n")}
 
-**Total files changed:** ${fileDiffs.FileDiffs.length}`;
+**Total files changed:** ${diffs.length}`;
 
       return {
         content: [{ type: "text", text: description }],
       };
     } catch (e: any) {
+      let errorMessage = e.message;
+
+      // Use toJSON() method if available (for AxiosError)
+      if (typeof e.toJSON === "function") {
+        try {
+          const errorJson = e.toJSON();
+          errorMessage = JSON.stringify(errorJson, null, 2);
+        } catch {
+          // Fallback to original message if toJSON fails
+          errorMessage = e.message;
+        }
+      }
+
       return {
         isError: true,
-        content: [{ type: "text", text: `Error: ${e.message}` }],
+        content: [{ type: "text", text: `Error: ${errorMessage}` }],
       };
     }
   },

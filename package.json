@@ -1,6 +1,6 @@
 {
   "name": "@yankeguo/mcp-coding-mr",
-  "version": "0.1.1",
+  "version": "0.2.0",
   "description": "A simple MCP server for CODING MR API",
   "main": "dist/index.js",
   "bin": {
@@ -35,7 +35,9 @@
   },
   "dependencies": {
     "@modelcontextprotocol/sdk": "^1.12.1",
+    "@yankeguo/coding-node-client": "^202506.11.1",
     "axios": "^1.9.0",
     "zod": "^3.25.51"
-  }
+  },
+  "packageManager": "yarn@4.6.0+sha512.5383cc12567a95f1d668fbe762dfe0075c595b4bfff433be478dbbe24e05251a8e8c3eb992a986667c1d53b6c3a9c85b8398c35a960587fbd9fa3a0915406728"
 }
